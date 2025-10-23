@@ -1,0 +1,29 @@
+IT Support Knowledge Base - Test Document
+
+Password Reset Instructions:
+1. Go to the company login page
+2. Click "Forgot Password"
+3. Enter your company email address
+4. Check your email for reset instructions
+5. Follow the link and create a new password
+
+VPN Setup Guide:
+1. Download the company VPN client from the IT portal
+2. Install the software on your device
+3. Use your company credentials to connect
+4. Select the appropriate server location
+5. Test your connection by accessing internal resources
+
+WiFi Troubleshooting:
+1. Check if WiFi is enabled on your device
+2. Restart your router and modem
+3. Forget and reconnect to the network
+4. Update your network drivers
+5. Contact IT if issues persist
+
+Software Installation:
+1. All software requests must go through IT
+2. Submit a ticket with software requirements
+3. IT will verify licensing and security
+4. Installation will be scheduled within 2 business days
+5. Training materials will be provided if needed

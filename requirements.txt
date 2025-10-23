@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+streamlit
+requests
+python-multipart
+langchain
+openai
+faiss-cpu
+tiktoken
+PyMuPDF
+docx2txt
+python-docx
+pandas
