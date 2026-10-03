@@ -13,6 +13,35 @@ export default function (component) {
   let timer;
   let mode;
   let lastToken = window.infoflowLastToken;
+  let signingOut = false;
+  let authRevision = 0;
+
+  function clearAuth() {
+    authRevision += 1;
+    lastToken = null;
+    window.infoflowLastToken = null;
+    setStateValue('auth', null);
+  }
+
+  async function signOut(button) {
+    if (signingOut) return;
+    signingOut = true;
+    authRevision += 1;
+    button.disabled = true;
+    button.textContent = 'Signing out…';
+    try {
+      await clerk.signOut();
+      clearAuth();
+      // A new page also removes Streamlit's previous component/session state.
+      location.replace(location.origin + '/');
+    } catch (error) {
+      signingOut = false;
+      if (disposed) return;
+      button.disabled = false;
+      button.textContent = 'Sign out';
+      status.textContent = 'Could not sign out. Please try again.';
+    }
+  }
 
   function loadScript(src, key) {
     return new Promise((resolve, reject) => {
@@ -44,6 +73,12 @@ export default function (component) {
     status.textContent = '';
     if (nextMode === 'signed-in') {
       clerk.mountUserButton(widget, { signOutRedirectUrl: location.origin + '/' });
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = 'Sign out';
+      button.style.cssText = 'margin:12px 0;padding:8px 16px;cursor:pointer;background:white;border:1px solid #ddd;border-radius:8px;';
+      button.onclick = () => signOut(button);
+      controls.appendChild(button);
       return;
     }
     const button = document.createElement('button');
@@ -62,20 +97,17 @@ export default function (component) {
   }
 
   async function sync() {
-    if (disposed) return;
+    if (disposed || signingOut) return;
     if (!clerk.session) {
       if (mode !== 'sign-up') mount('sign-in');
-      if (lastToken != null) {
-        lastToken = null;
-        window.infoflowLastToken = null;
-        setStateValue('auth', null);
-      }
+      if (lastToken != null || data.authenticated) clearAuth();
       return;
     }
     mount('signed-in');
     const session = clerk.session;
+    const revision = authRevision;
     const token = await session.getToken();
-    if (disposed || clerk.session?.id !== session.id) return;
+    if (disposed || signingOut || revision !== authRevision || clerk.session?.id !== session.id) return;
     if (token !== lastToken) {
       lastToken = token;
       window.infoflowLastToken = token;

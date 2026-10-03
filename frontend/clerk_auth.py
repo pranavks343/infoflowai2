@@ -24,7 +24,10 @@ def login():
         st.info("Secure sign-in is being configured. Please check back shortly.")
         st.stop()
     result = _clerk(
-        key="clerk_session", data={"publishableKey": key},
+        key="clerk_session", data={
+            "publishableKey": key,
+            "authenticated": bool(st.session_state.get("clerk_token")),
+        },
         default={"auth": None}, on_auth_change=lambda: None,
     )
     auth = result.auth
