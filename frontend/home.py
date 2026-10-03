@@ -3,6 +3,7 @@ from clerk_auth import login
 from hr_dashboard import show_hr_dashboard
 from it_dashboard import show_it_dashboard
 from employee_chat import show_employee_chat
+from role_selection import choose_role
 
 # Set white background (default) and wide layout
 st.set_page_config(page_title="🤖 InfoFlow AI", layout="wide")
@@ -14,7 +15,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-role = login()
+role = choose_role(login())
 
 # 📂 Role-Based Sidebar Navigation
 st.sidebar.header("📂 Navigation")

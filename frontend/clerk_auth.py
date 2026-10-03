@@ -67,7 +67,7 @@ def login():
     )
     auth = result.auth
     if not isinstance(auth, dict) or not auth.get("token"):
-        for name in ("clerk_token", "clerk_user", "chat_result", "it_result", "hr_result"):
+        for name in ("clerk_token", "clerk_user", "signin_role", "signin_role_choice", "chat_result", "it_result", "hr_result"):
             st.session_state.pop(name, None)
         if isinstance(auth, dict) and auth.get("error"):
             st.error("Secure sign-in could not load. Please refresh or contact your administrator.")
@@ -84,9 +84,9 @@ def login():
         st.stop()
     old_user = st.session_state.get("clerk_user", {})
     if old_user.get("user_id") != user["user_id"]:
-        for name in ("chat_result", "it_result", "hr_result"):
+        for name in ("signin_role", "signin_role_choice", "chat_result", "it_result", "hr_result"):
             st.session_state.pop(name, None)
     st.session_state.clerk_user = user
     st.sidebar.write("Signed in", auth.get("name") or user["user_id"])
-    st.sidebar.caption(user["role"])
+    st.sidebar.caption(f"Account access: {user['role']}")
     return user["role"]

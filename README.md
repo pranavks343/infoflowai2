@@ -24,7 +24,10 @@ included in the image; upload documents again after deployment.
 
 Clerk manages authentication; passwords are no longer read from `users.json`.
 Every API request verifies Clerk's signature, issuer, expiry and application
-origin. New users default to Employee. Uploads and management endpoints require
+origin. Each sign-in asks users to select an Employee, HR, IT, or Admin workspace.
+The selection does not grant permissions: new users have Employee access until
+an administrator assigns a different role in Clerk. Users can select Employee
+or their assigned role; Admin users can select any workspace. Uploads and management endpoints require
 HR or Admin, and the IT endpoint requires IT or Admin. Documents still share one
 knowledge base; department-level document filtering is not implemented.
 
