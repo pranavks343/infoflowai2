@@ -3,10 +3,9 @@ from langchain.chains import RetrievalQA
 from langchain_community.chat_models import ChatOpenAI
 from .vector_store import get_vector_db
 from dotenv import load_dotenv
-import os
+from pathlib import Path
 
-load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 def get_rag_chain():
     db = get_vector_db()

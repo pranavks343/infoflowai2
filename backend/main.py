@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import ingestion, chat, admin, it_support  # make sure all files exist under routers/
 from dotenv import load_dotenv
+from pathlib import Path
 import uvicorn
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
+from routers import ingestion, chat, admin, it_support
 
 app = FastAPI(title="InfoFlow AI - Internal Knowledge Assistant")
 

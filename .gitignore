@@ -52,3 +52,7 @@ backend/faiss_index/
 # User data
 users.json
 
+
+# Local uploaded documents
+frontend/frontend/data/uploaded_docs/
+frontend/data/uploaded_docs/

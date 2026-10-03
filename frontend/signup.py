@@ -2,10 +2,11 @@ import streamlit as st
 import json
 import os
 
-USER_DB = "users.json"
+USER_DB = os.path.join(os.environ.get("DATA_DIR", "."), "users.json")
 
 # Ensure user database exists
 def init_user_db():
+    os.makedirs(os.path.dirname(os.path.abspath(USER_DB)), exist_ok=True)
     if not os.path.exists(USER_DB):
         with open(USER_DB, "w") as f:
             json.dump({}, f)

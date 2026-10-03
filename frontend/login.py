@@ -2,7 +2,7 @@ import streamlit as st
 import json
 import os
 
-USER_DB = "users.json"
+USER_DB = os.path.join(os.environ.get("DATA_DIR", "."), "users.json")
 
 def load_users():
     if not os.path.exists(USER_DB):

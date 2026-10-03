@@ -3,7 +3,11 @@ uvicorn
 streamlit
 requests
 python-multipart
-langchain
+langchain>=0.3,<0.4
+langchain-community>=0.3,<0.4
+langchain-openai>=0.3,<0.4
+python-dotenv
+pypdf
 openai
 faiss-cpu
 tiktoken

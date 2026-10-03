@@ -5,7 +5,7 @@ from langchain_openai import OpenAIEmbeddings  # ✅ Use updated import
 from langchain_core.documents import Document
 import os
 
-VECTOR_DB_PATH = "faiss_index"
+VECTOR_DB_PATH = os.path.join(os.environ.get("DATA_DIR", "."), "faiss_index")
 
 def get_embedding():
     """Returns an instance of the OpenAI Embeddings class."""

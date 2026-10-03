@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import os
 
-UPLOADS_FOLDER = "frontend/data/uploaded_docs"
+UPLOADS_FOLDER = os.path.join(os.environ.get("DATA_DIR", "frontend/data"), "uploaded_docs")
 
 def show_hr_dashboard():
     st.title("📁 HR Dashboard – Upload Documents to Knowledge Base")
@@ -16,7 +16,7 @@ def show_hr_dashboard():
 
     if uploaded_file is not None:
         # Save uploaded file to disk
-        file_path = os.path.join(UPLOADS_FOLDER, uploaded_file.name)
+        file_path = os.path.join(UPLOADS_FOLDER, os.path.basename(uploaded_file.name))
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
@@ -28,7 +28,7 @@ def show_hr_dashboard():
                 files = {"file": (uploaded_file.name, f)}
                 try:
                     response = requests.post("http://localhost:8000/api/ingest/upload", files=files)
-                    if response.status_code == 200:
+                    if response.status_code == 200 and not response.json().get("error"):
                         st.success("✅ File uploaded and indexed into the vector store!")
                     else:
                         st.error(f"❌ Upload failed. Status code: {response.status_code}")

@@ -7,7 +7,8 @@ router = APIRouter()
 
 @router.get("/stats")
 def get_stats():
-    files = os.listdir("data/uploaded_docs") if os.path.exists("data/uploaded_docs") else []
+    uploads = os.path.join(os.environ.get("DATA_DIR", "data"), "uploaded_docs")
+    files = os.listdir(uploads) if os.path.exists(uploads) else []
     return {
         "uploaded_docs_count": len(files),
         "files": files
