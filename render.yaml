@@ -2,17 +2,13 @@ services:
   - type: web
     name: infoflow-ai
     runtime: docker
-    plan: starter
+    plan: free
     region: singapore
     autoDeployTrigger: off
     dockerfilePath: ./Dockerfile
     healthCheckPath: /_stcore/health
-    disk:
-      name: infoflow-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: OPENAI_API_KEY
         sync: false
       - key: DATA_DIR
-        value: /var/data
+        value: /tmp/infoflow-data

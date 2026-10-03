@@ -6,9 +6,9 @@ Streamlit interface with an internal FastAPI document assistant.
 
 [Open the Render deployment setup](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Fpranavks343%2Finfoflowai2%2Ftree%2Fcodex%2Frender-deployment)
 
-The `render.yaml` Blueprint deploys a Docker web service with a 1 GB persistent
-disk. This uses a paid Starter service and paid storage; review Render's pricing
-before creating the service.
+The `render.yaml` Blueprint deploys a free Docker web service without a persistent
+disk. Render can spin it down after inactivity; accounts, documents and the index
+are lost on spin-down, restart or redeploy. OpenAI API usage is billed separately.
 
 1. In Render, select **New → Blueprint** and connect this GitHub repository.
 2. Select the branch containing `render.yaml`.
@@ -19,7 +19,7 @@ before creating the service.
 
 Only Streamlit is exposed publicly; FastAPI runs inside the container on
 `127.0.0.1:8000`. Accounts, uploaded files and the FAISS index are stored under
-`/var/data` on the persistent disk. Existing local documents and accounts are not
+`/tmp/infoflow-data` on ephemeral storage. Existing local documents and accounts are not
 included in the image; upload documents again after deployment.
 
 This is a prototype deployment. Signup permits users to choose HR/IT roles and
