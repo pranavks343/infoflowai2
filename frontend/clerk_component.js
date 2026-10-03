@@ -76,7 +76,7 @@ export default function (component) {
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = 'Sign out';
-      button.style.cssText = 'margin:12px 0;padding:8px 16px;cursor:pointer;background:white;border:1px solid #ddd;border-radius:8px;';
+      button.className = 'infoflow-auth-action';
       button.onclick = () => signOut(button);
       controls.appendChild(button);
       return;
@@ -84,7 +84,7 @@ export default function (component) {
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = nextMode === 'sign-in' ? 'Create an account' : 'Already have an account? Sign in';
-    button.style.cssText = 'margin:12px 0;padding:8px 12px;cursor:pointer;background:white;border:1px solid #ddd;border-radius:8px;';
+    button.className = 'infoflow-auth-action';
     button.onclick = () => mount(nextMode === 'sign-in' ? 'sign-up' : 'sign-in');
     controls.appendChild(button);
     const options = {

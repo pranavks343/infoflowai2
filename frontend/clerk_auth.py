@@ -12,7 +12,42 @@ load_dotenv(Path(__file__).resolve().parents[1] / "backend" / ".env")
 
 _clerk = components.component(
     "clerk_auth",
-    html='<div class="clerk-status">Loading secure sign-in…</div><div class="clerk-controls"></div><div class="clerk-signin"></div><div class="clerk-signup" hidden></div><div class="clerk-user" hidden></div>',
+    html='''
+    <style>
+      .infoflow-auth-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        margin: 0 0 16px;
+        padding: 10px 18px;
+        border: 1px solid #2563eb;
+        border-radius: 10px;
+        background: #2563eb;
+        color: #fff;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+        cursor: pointer;
+        transition: background 150ms ease, border-color 150ms ease;
+      }
+      .infoflow-auth-action:hover:not(:disabled) {
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+      }
+      .infoflow-auth-action:focus-visible {
+        outline: 3px solid #93c5fd;
+        outline-offset: 3px;
+      }
+      .infoflow-auth-action:disabled { opacity: .65; cursor: wait; }
+    </style>
+    <div class="clerk-status">Loading secure sign-in…</div>
+    <div class="clerk-controls"></div>
+    <div class="clerk-signin"></div>
+    <div class="clerk-signup" hidden></div>
+    <div class="clerk-user" hidden></div>
+    ''',
     js=(Path(__file__).parent / "clerk_component.js").read_text(),
     isolate_styles=False,
 )
