@@ -12,3 +12,7 @@ services:
         sync: false
       - key: DATA_DIR
         value: /tmp/infoflow-data
+      - key: CLERK_PUBLISHABLE_KEY
+        value: pk_test_aW5ub2NlbnQtbXVsbGV0LTI5MzIuY2xlcmsuYWNjb3VudHMuZGV2JA
+      - key: CLERK_AUTHORIZED_PARTIES
+        value: https://infoflow-ai.onrender.com

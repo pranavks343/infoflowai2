@@ -15,16 +15,47 @@ are lost on spin-down, restart or redeploy. OpenAI API usage is billed separatel
 3. Enter `OPENAI_API_KEY` when prompted. Keep it in Render's environment settings,
    never in the repository or Docker image.
 4. Review the proposed resources and deploy.
-5. Open the service's Render URL, sign up, and upload a document as HR.
+5. Open the service's Render URL and sign in with Clerk.
 
 Only Streamlit is exposed publicly; FastAPI runs inside the container on
 `127.0.0.1:8000`. Accounts, uploaded files and the FAISS index are stored under
 `/tmp/infoflow-data` on ephemeral storage. Existing local documents and accounts are not
 included in the image; upload documents again after deployment.
 
-This is a prototype deployment. Signup permits users to choose HR/IT roles and
-passwords are stored without hashing. Use test accounts and non-sensitive data
-until authentication and document permissions are hardened.
+Clerk manages authentication; passwords are no longer read from `users.json`.
+Every API request verifies Clerk's signature, issuer, expiry and application
+origin. New users default to Employee. Uploads and management endpoints require
+HR or Admin, and the IT endpoint requires IT or Admin. Documents still share one
+knowledge base; department-level document filtering is not implemented.
+
+## Clerk configuration
+
+The included publishable key belongs to the InfoFlow AI development instance.
+It is public and is safe to ship to browsers. No Clerk secret key is required.
+For a production Clerk instance, replace `CLERK_PUBLISHABLE_KEY` in Render and
+the Blueprint with that instance's publishable key and complete Clerk's domain
+setup. Keep `CLERK_AUTHORIZED_PARTIES` set to the exact application origin.
+
+To grant a user a role:
+
+1. In Clerk, go to **Configure → Sessions → Customize session token** and set:
+
+   ```json
+   {"role": "{{user.public_metadata.role}}"}
+   ```
+
+2. In **Users**, select the user and set their **Public metadata** to
+   `{"role": "HR"}`, `{"role": "IT"}`, or `{"role": "Admin"}`.
+3. Sign out and back in, or wait for the session token to refresh.
+
+Only administrators should edit public metadata. User-editable unsafe metadata
+is never used for permissions. Existing local accounts must register with Clerk.
+Clerk users persist independently of Render's ephemeral filesystem.
+
+For local development, also set `CLERK_PUBLISHABLE_KEY` in `backend/.env`.
+Local origins default to `http://localhost:8501` and `http://127.0.0.1:8501` when
+`CLERK_AUTHORIZED_PARTIES` is not set. Refreshing authentication does not resubmit
+questions or uploads; those require explicit form/button submissions.
 
 ## Run locally
 

@@ -1,35 +1,21 @@
-import streamlit as st
 import requests
+import streamlit as st
+from api_client import api_request
+from answer_view import show_answer
+
 
 def show_it_dashboard():
-    st.title("🛠️ IT Employee Knowledge Assistant")
-
-    query = st.text_input("Ask about IT policies, setup guides, troubleshooting...")
-
-    if query:
-        with st.spinner("Processing..."):
+    st.title("🛠️ IT Knowledge Assistant")
+    with st.form("it_question"):
+        query = st.text_input("Ask about IT policies, setup guides, troubleshooting...")
+        submitted = st.form_submit_button("Ask")
+    if submitted and query.strip():
+        with st.spinner("Searching for information..."):
             try:
-                response = requests.post("http://localhost:8000/api/it/query", json={"query": query})
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check for errors in the response
-                    if data.get("error"):
-                        error_msg = data.get("error", "")
-                        if "API key" in error_msg or "invalid_api_key" in error_msg:
-                            st.error("🔑 **Invalid OpenAI API Key**: Please update the OPENAI_API_KEY in `/backend/.env` with a valid key from https://platform.openai.com/api-keys")
-                        elif "Vector store not found" in error_msg or "No documents" in error_msg:
-                            st.warning("📂 **No Documents Found**: Please upload documents first using the HR Dashboard.")
-                        else:
-                            st.error(f"❌ **Error**: {error_msg}")
-                    else:
-                        answer = data.get("answer", "No answer returned.")
-                        sources = data.get("sources", [])
-                        st.markdown(f"**🧠 Answer:** {answer}")
-                        if sources:
-                            st.markdown("📄 **Sources:** " + ", ".join(sources))
-                else:
-                    st.error("❌ Error from server.")
-                    st.code(response.text)
-            except requests.exceptions.RequestException:
-                st.error("⚠️ Cannot reach backend. Is FastAPI running?")
+                response = api_request("POST", "/api/it/query", json={"query": query})
+                response.raise_for_status()
+                st.session_state.it_result = response.json()
+            except requests.RequestException:
+                st.error("Unable to get an answer right now. Please try again.")
+    if "it_result" in st.session_state:
+        show_answer(st.session_state.it_result)

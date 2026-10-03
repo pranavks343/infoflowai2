@@ -26,7 +26,7 @@ async def upload_document(file: UploadFile = File(...)):
 @router.get("/test-init")
 def init_dummy_vector_db():
     from langchain_core.documents import Document
-    from .vector_store import store_embeddings
+    from rag.vector_store import store_embeddings
 
     docs = [Document(page_content="Hello, this is a test document.")]
     store_embeddings(docs)

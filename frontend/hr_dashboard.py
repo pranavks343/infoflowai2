@@ -1,83 +1,42 @@
-import streamlit as st
-import requests
+from pathlib import Path
 import os
+import requests
+import streamlit as st
+from api_client import api_request
+from answer_view import show_answer
 
-UPLOADS_FOLDER = os.path.join(os.environ.get("DATA_DIR", "frontend/data"), "uploaded_docs")
+UPLOADS_FOLDER = Path(os.environ.get("DATA_DIR", "frontend/data")) / "uploaded_docs"
+
 
 def show_hr_dashboard():
-    st.title("📁 HR Dashboard – Upload Documents to Knowledge Base")
-
-    # ✅ Ensure uploads folder exists
-    if not os.path.exists(UPLOADS_FOLDER):
-        os.makedirs(UPLOADS_FOLDER)
-
-    # ✅ File uploader interface
-    uploaded_file = st.file_uploader("📤 Upload a PDF/DOCX/TXT file", type=["pdf", "docx", "txt"])
-
-    if uploaded_file is not None:
-        # Save uploaded file to disk
-        file_path = os.path.join(UPLOADS_FOLDER, os.path.basename(uploaded_file.name))
-        with open(file_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-
-        st.success(f"✅ File saved to: {file_path}")
-
-        # Button to send to FastAPI for ingestion
-        if st.button("🚀 Send to Knowledge Base"):
-            with open(file_path, "rb") as f:
-                files = {"file": (uploaded_file.name, f)}
-                try:
-                    response = requests.post("http://localhost:8000/api/ingest/upload", files=files)
-                    if response.status_code == 200 and not response.json().get("error"):
-                        st.success("✅ File uploaded and indexed into the vector store!")
-                    else:
-                        st.error(f"❌ Upload failed. Status code: {response.status_code}")
-                        st.code(response.text)
-                except requests.exceptions.RequestException:
-                    st.error("🔌 Backend not available. Please ensure FastAPI is running on port 8000.")
-
-    # ✅ Check if there are any files uploaded
-    available_files = [
-        f for f in os.listdir(UPLOADS_FOLDER)
-        if f.endswith((".pdf", ".docx", ".txt"))
-    ]
-
-    st.markdown("---")
-    st.subheader("💬 Ask a Query from Knowledge Base")
-
-    if not available_files:
-        st.warning("⚠️ No documents found in the knowledge base. Please ask the HR to upload the relevant file.")
-    else:
-        user_query = st.text_input("🔍 Enter your query")
-        if user_query:
-            with st.spinner("Thinking..."):
-                try:
-                    response = requests.post(
-                        "http://localhost:8000/api/chat/query",
-                        json={"query": user_query}
-                    )
-                    if response.status_code == 200:
-                        data = response.json()
-                        
-                        # Check for errors in the response
-                        if data.get("error"):
-                            error_msg = data.get("error", "")
-                            if "API key" in error_msg or "invalid_api_key" in error_msg:
-                                st.error("🔑 **Invalid OpenAI API Key**: Please update the OPENAI_API_KEY in `/backend/.env` with a valid key from https://platform.openai.com/api-keys")
-                            elif "Vector store not found" in error_msg or "No documents" in error_msg:
-                                st.warning("📂 **No Documents Found**: Please upload documents first and click '🚀 Send to Knowledge Base'.")
-                            else:
-                                st.error(f"❌ **Error**: {error_msg}")
-                        else:
-                            st.success("🧠 Answer:")
-                            st.write(data.get("answer", "No answer provided."))
-
-                            if sources := data.get("sources"):
-                                st.markdown("#### 📚 Sources:")
-                                for src in sources:
-                                    st.write(f"• {src}")
-                    else:
-                        st.error("❌ Failed to fetch answer from backend.")
-                        st.code(response.text)
-                except requests.exceptions.RequestException:
-                    st.error("🔌 Backend not available. Please ensure FastAPI is running on port 8000.")
+    st.title("📁 HR Dashboard")
+    uploaded_file = st.file_uploader("Upload a PDF, DOCX, or TXT file", type=["pdf", "docx", "txt"])
+    if st.button("Send to Knowledge Base", disabled=uploaded_file is None) and uploaded_file:
+        with st.spinner("Indexing document..."):
+            try:
+                filename = Path(uploaded_file.name).name
+                response = api_request("POST", "/api/ingest/upload", files={"file": (filename, uploaded_file.getvalue())})
+                response.raise_for_status()
+                data = response.json()
+                if data.get("error"):
+                    st.error(data["error"])
+                else:
+                    UPLOADS_FOLDER.mkdir(parents=True, exist_ok=True)
+                    (UPLOADS_FOLDER / filename).write_bytes(uploaded_file.getvalue())
+                    st.success("Document indexed. You can now ask questions about it.")
+            except (requests.RequestException, OSError):
+                st.error("Unable to finish uploading the document. Please try again.")
+    st.divider()
+    with st.form("hr_question"):
+        query = st.text_input("Ask a question about the knowledge base")
+        submitted = st.form_submit_button("Ask")
+    if submitted and query.strip():
+        with st.spinner("Searching..."):
+            try:
+                response = api_request("POST", "/api/chat/query", json={"query": query})
+                response.raise_for_status()
+                st.session_state.hr_result = response.json()
+            except requests.RequestException:
+                st.error("Unable to get an answer right now. Please try again.")
+    if "hr_result" in st.session_state:
+        show_answer(st.session_state.hr_result)
