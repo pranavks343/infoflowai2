@@ -15,4 +15,3 @@ PyMuPDF
 docx2txt
 python-docx
 pandas
-PyJWT[crypto]>=2.10,<3

@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 import os
+from passwords import verify_password
 
 USER_DB = os.path.join(os.environ.get("DATA_DIR", "."), "users.json")
 
@@ -26,7 +27,7 @@ def login():
         if login_button:
             users = load_users()
             user = users.get(username)
-            if user and user["password"] == password:
+            if user and verify_password(password, user.get("password")):
                 st.session_state.logged_in = True
                 st.session_state.role = user["role"]
                 st.session_state.username = username
@@ -37,6 +38,8 @@ def login():
         return False, None
     else:
         if st.sidebar.button("Logout"):
+            for name in ("chat_result", "hr_result", "it_result"):
+                st.session_state.pop(name, None)
             st.session_state.logged_in = False
             st.session_state.username = None
             st.session_state.role = None

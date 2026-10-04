@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 import os
+from passwords import hash_password
 
 USER_DB = os.path.join(os.environ.get("DATA_DIR", "."), "users.json")
 
@@ -42,7 +43,7 @@ def show_signup():
                 st.error("Username already exists. Please choose another.")
                 return
 
-            users[username] = {"password": password, "role": role}
+            users[username] = {"password": hash_password(password), "role": role}
             save_users(users)
 
             st.success(f"Account created for '{username}' as '{role}' ✅")
